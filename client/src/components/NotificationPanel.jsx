@@ -7,6 +7,8 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { useMarkNotiAsReadMutation, useGetNotificationsQuery } from "../redux/slices/api/userApiSlice";
 
+//need email notification
+
 const data = [
   {
     _id: "65c5bbf3787832cf99f28e6d",
