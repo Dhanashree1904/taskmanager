@@ -1,9 +1,9 @@
 import { useState } from "react";
-import ModalWrapper from "./ModalWrapper";  // Assuming the ModalWrapper is in the same folder
-import { toast } from "sonner";  // You can use this or any other notification library you prefer.
-import { useChangePasswordMutation } from "../redux/slices/api/userApiSlice"; // Assuming this mutation exists
+import ModalWrapper from "./ModalWrapper";  
+import { toast } from "sonner";  
+import { useChangePasswordMutation } from "../redux/slices/api/userApiSlice"; 
 
-import Button from "./Button";  // Assuming the Button is located in the same folder
+import Button from "./Button";  
 
 const ChangePassword = ({ open, setOpen }) => {
   const [oldPassword, setOldPassword] = useState("");
@@ -33,14 +33,14 @@ const ChangePassword = ({ open, setOpen }) => {
     }
 
     try {
-      // Call API mutation to change password
+      
       await changePassword({
         oldPassword,
-        newPassword,
+        password: newPassword,
       }).unwrap();
 
       toast.success("Password changed successfully!");
-      setOpen(false); // Close the modal
+      setOpen(false); 
     } catch (err) {
       setError("Error changing password. Please try again.");
     }
