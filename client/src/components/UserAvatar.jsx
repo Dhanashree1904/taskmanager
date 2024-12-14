@@ -8,7 +8,7 @@ import { getInitials } from '../utils';
 import { toast } from "sonner";
 import { useLogoutMutation } from '../redux/slices/api/authApiSlice';
 import { logout } from "../redux/slices/authSlice";
-//import ChangePassword from './ChangePassword';
+import ChangePassword from './ChangePassword';
 
 const UserAvatar = () => {
 
@@ -95,8 +95,8 @@ const UserAvatar = () => {
         </Menu>
     </div>
 
-    {/* < AddUser open={open} setOpen={setOpen} userData={user} />
-    <ChnagePassword open={openPassword} setOpen={setOpenPassword}/> **/}
+    {/* < AddUser open={open} setOpen={setOpen} userData={user} /> **/}
+    <ChangePassword open={openPassword} setOpen={setOpenPassword}/> 
 
   </>
   )
