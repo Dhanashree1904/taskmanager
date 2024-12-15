@@ -22,6 +22,11 @@ const ChangePassword = ({ open, setOpen }) => {
       return;
     }
 
+    if (oldPassword !== setOldPassword) {
+      setError("Incorrect old password.");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
