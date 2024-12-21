@@ -22,11 +22,6 @@ const ChangePassword = ({ open, setOpen }) => {
       return;
     }
 
-    if (oldPassword !== setOldPassword) {
-      setError("Incorrect old password.");
-      return;
-    }
-
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -45,9 +40,18 @@ const ChangePassword = ({ open, setOpen }) => {
       }).unwrap();
 
       toast.success("Password changed successfully!");
+      setOldPassword(""); 
+      setNewPassword(""); 
+      setConfirmPassword("");
+      setError(""); 
       setOpen(false); 
     } catch (err) {
-      setError("Error changing password. Please try again.");
+
+      if (err?.data?.message === "Incorrect old password") {
+        setError("The old password you entered is incorrect.");
+      } else {
+        setError(err?.data?.message || "Error changing password. Please try again.");
+      }
     }
   };
 

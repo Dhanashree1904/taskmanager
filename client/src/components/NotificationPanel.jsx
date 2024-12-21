@@ -9,17 +9,6 @@ import { useMarkNotiAsReadMutation, useGetNotificationsQuery } from "../redux/sl
 
 //need email notification
 
-const data = [
-  {
-    _id: "65c5bbf3787832cf99f28e6d",
-    text: "New task has been assigned to you and 2 others. The task priority is set a normal priority, so check and act accordingly. The task date is Thu Feb 29 2024. Thank you!!!",
-    task: null,
-    notiType: "alert",
-    isRead: [],
-    createdAt: "2024-02-09T05:45:23.353Z",
-    updatedAt: "2024-02-09T05:45:23.353Z",
-  },
-];
 const ICONS = {
   alert: (
     <HiBellAlert className='h-5 w-5 text-gray-600 group-hover:text-indigo-600' />
