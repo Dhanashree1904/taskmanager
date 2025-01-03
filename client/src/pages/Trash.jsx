@@ -13,6 +13,7 @@ import { PRIOTITYSTYLES, TASK_TYPE } from "../utils";
 import AddUser from "../components/AddUser";
 import ConfirmatioDialog from "../components/Dialogs";
 import { useGetAllTasksQuery } from "../redux/slices/api/taskApiSlice";
+import { useTrashTaskMutation } from "../redux/slices/api/taskApiSlice";
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -32,6 +33,28 @@ const Trash = () => {
     isTrashed: "true", 
     search: "",
   });
+
+  const [trashTask] = useTrashTaskMutation();
+
+  const deleteRestoreHandler = async () => {
+    try {
+      if (type === "delete") {
+        await trashTask({ id: selected, isTrashed: true });  // Ensure the endpoint can permanently delete
+      } else if (type === "restore") {
+        await trashTask({ id: selected, isTrashed: false });  // Ensure restoring works as expected
+      } else if (type === "deleteAll") {
+        await Promise.all(data?.tasks.map(task => trashTask({ id: task._id, isTrashed: true })));
+      } else if (type === "restoreAll") {
+        await Promise.all(data?.tasks.map(task => trashTask({ id: task._id, isTrashed: false })));
+      }
+      refetch();  // Refetch data to update UI
+      setOpenDialog(false); // Close the dialog after action
+    } catch (error) {
+      console.error("Error handling delete/restore:", error);
+      setOpenDialog(false);
+    }
+  };
+  
 
   const deleteAllClick = () => {
     setType("deleteAll");

@@ -6,6 +6,7 @@ import { HiBellAlert } from "react-icons/hi2";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { useMarkNotiAsReadMutation, useGetNotificationsQuery } from "../redux/slices/api/userApiSlice";
+import ViewNotification from "./ViewNotification";
 
 //need email notification
 
@@ -122,7 +123,7 @@ const NotificationPanel = () => {
         </Transition>
       </Popover>
 
-      {/* <ViewNotification open={open} setOpen={setOpen} el={selected} /> */}
+      <ViewNotification open={open} setOpen={setOpen} el={selected} />
     </>
   );
 };

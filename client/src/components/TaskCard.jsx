@@ -50,7 +50,11 @@ const TaskCard = ({ task }) => {
             <h4 className='line-clamp-1 text-black'>{task?.title}</h4>
           </div>
           <span className='text-sm text-gray-600'>
-            {formatDate(new Date(task?.date))}
+            Created On: {formatDate(new Date(task?.date))}
+          </span>
+          <br />
+          <span className="text-sm text-gray-600">
+            Deadline: {formatDate(new Date(task?.deadline))}
           </span>
         </>
 
@@ -88,19 +92,38 @@ const TaskCard = ({ task }) => {
 
         {/* sub tasks */}
         {task?.subTasks?.length > 0 ? (
-          <div className='py-4 border-t border-gray-200'>
-            <h5 className='text-base line-clamp-1 text-black'>
-              {task?.subTasks[0].title}
-            </h5>
+          <div className="py-4 border-t border-gray-200">
+            {task.subTasks.map((subTask, index) => (
+              <div key={index} className="mb-4">
+                <h5 className="text-base line-clamp-1 text-black">
+                  {subTask.title}
+                </h5>
+                <div className="p-4 space-y-2">
 
-            <div className='p-4 space-x-8'>
-              <span className='text-sm text-gray-600'>
-                {formatDate(new Date(task?.subTasks[0]?.date))}
-              </span>
-              <span className='bg-blue-600/10 px-3 py-1 rounded0full text-blue-700 font-medium'>
-                {task?.subTasks[0].tag}
-              </span>
-            </div>
+                  <span className="text-sm text-gray-600">
+                    Deadline: {formatDate(new Date(subTask?.deadline))}
+                  </span>
+                  <br />
+                  <span className="bg-blue-600/10 px-3 py-1 rounded-full text-blue-700 font-medium">
+                    {subTask.tag}
+                  </span>
+                  
+                </div>
+                {/*<div className='py-2'>
+                  <span className='text-sm font-medium'>Team:</span>
+                    <div className='flex gap-2 mt-1'>
+                      {subTask.team.map((member) => (
+                        <div
+                          key={member._id}
+                          className='bg-gray-200 px-3 py-1 rounded-md text-sm text-gray-700'
+                        >
+                          {member.name}
+                        </div>
+                      ))}
+                    </div>
+                </div>*/}
+              </div>
+            ))}
           </div>
         ) : (
           <>

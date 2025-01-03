@@ -230,7 +230,7 @@ const TaskDetails = () => {
           </>
         ) : (
           <>
-            <Activities activity={task.activities} id={id} refetch={refetch}/>
+            <Activities activity={task.activities} id={id} refetch={refetch}/> {/*data*/}
           </>
         )}
       </Tabs>

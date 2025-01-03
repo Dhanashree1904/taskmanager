@@ -12,6 +12,7 @@ import { app } from "../../utils/firebase";
 import { useCreateTaskMutation, useUpdateTaskMutation } from "../../redux/slices/api/taskApiSlice";
 import { toast } from "sonner";
 import { dateFormatter } from "../../utils";
+import Loading from "../Loader";
 
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
@@ -22,7 +23,7 @@ const AddTask = ({ open, setOpen, task }) => {
 
   const defaultValues = {
     title: task?.title || "",
-    data: dateFormatter(task?.date || new Date()),
+    deadline: dateFormatter(task?.deadline || new Date()),
     team: [],
     stage: "",
     priority: "",
@@ -42,12 +43,17 @@ const AddTask = ({ open, setOpen, task }) => {
   );
   const [assets, setAssets] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [createTask, { isLoading }] = useCreateTaskMutation();
   const [updateTask, { isLoading : isUpdating }] = useUpdateTaskMutation();
   const URLS = task?.assets ? [...task.assets] : [];
 
+  const creationDate = task ? task.creationDate : new Date();
+
   const submitHandler = async (data) => {
+    setIsSubmitting(true);
+    
     for (const file of assets) {
       setUploading(true);
       try {
@@ -63,6 +69,7 @@ const AddTask = ({ open, setOpen, task }) => {
     try {
       const newData = {
         ...data,
+        creationDate,
         assets: [...URLS, ...uploadedFileURLs],
         team,
         stage,
@@ -158,13 +165,13 @@ const AddTask = ({ open, setOpen, task }) => {
                 <Textbox
                   placeholder='Date'
                   type='date'
-                  name='date'
-                  label='Task Date'
+                  name='deadline'
+                  label='Task Deadline'
                   className='w-full rounded'
-                  register={register("date", {
-                    required: "Date is required!",
+                  register={register("deadline", {
+                    required: "Deadline is required!",
                   })}
-                  error={errors.date ? errors.date.message : ""}
+                  error={errors.deadline ? errors.deadline.message : ""}
                 />
               </div>
             </div>
