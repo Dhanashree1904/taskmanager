@@ -218,12 +218,17 @@ export const dashboardStatistics = async (req, res) => {
 
 export const getTasks = async (req, res) => {
   try {
+    const { userId, isAdmin } = req.user;//
     const { stage, isTrashed } = req.query;
 
     let query = { isTrashed: isTrashed ? true : false };
 
     if (stage) {
       query.stage = stage;
+    }
+
+    if (!isAdmin) {
+      query.team = { $all: [userId] }; // Check if user is part of the team array
     }
 
     const tasks = await Task.find(query)
@@ -349,7 +354,7 @@ export const trashTask = async (req, res) => {
 
     task.isTrashed = true;
 
-    await task.save();
+    await task.save();  
 
     res.status(200).json({
       status: true,

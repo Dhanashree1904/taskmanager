@@ -22,6 +22,8 @@ const ICONS = {
   low: <MdKeyboardArrowDown />,
 };
 
+//code for list view
+
 const Table = ({ tasks }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
