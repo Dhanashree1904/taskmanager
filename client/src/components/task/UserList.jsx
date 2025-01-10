@@ -13,7 +13,7 @@ const UserList = ({ setTeam, team }) => {
 
   const handleChange = (el) => {
     setSelectedUsers(el);
-    setTeam(el?.map((u) => u._id));
+    setTeam(el?.map((u) => ({ _id: u._id, email: u.email })));
   };
   useEffect(() => {
     if (team?.length < 1) {

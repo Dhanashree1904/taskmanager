@@ -17,7 +17,6 @@ import Loading from "../Loader";
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 
-const uploadedFileURLs = [];
 
 const AddTask = ({ open, setOpen, task }) => {
 
@@ -36,6 +35,8 @@ const AddTask = ({ open, setOpen, task }) => {
     formState: { errors },
   } = useForm({defaultValues});
 
+  const [uploadedFileURLs, setUploadedFileURLs] = useState([]);
+
   const [team, setTeam] = useState(task?.team || []);
   const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0]);
   const [priority, setPriority] = useState(
@@ -49,7 +50,33 @@ const AddTask = ({ open, setOpen, task }) => {
   const [updateTask, { isLoading : isUpdating }] = useUpdateTaskMutation();
   const URLS = task?.assets ? [...task.assets] : [];
 
-  const creationDate = task ? task.creationDate : new Date();
+  //const baseURL = "http://localhost:8800/api";
+
+  const sendEmail =  async (emailList, taskTitle) => {
+    let dataSend = {
+      emails: emailList,
+      taskTitle: taskTitle,
+    };
+    const res = await fetch(`http://localhost:8800/api/email/`, {
+      method: "POST",
+      body: JSON.stringify(dataSend),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+
+    //handling errors
+    .then((res) => {
+      console.log(res);
+      if (res.status > 199 && res.status < 300) {
+        alert("Sent Successfully!");
+      } else {
+        alert("Failed to send email.");
+      }
+    });
+  };
+
 
   const submitHandler = async (data) => {
     setIsSubmitting(true);
@@ -69,8 +96,8 @@ const AddTask = ({ open, setOpen, task }) => {
     try {
       const newData = {
         ...data,
-        creationDate,
-        assets: [...URLS, ...uploadedFileURLs],
+        //assets: [...URLS, ...uploadedFileURLs],
+        assets: uploadedFileURLs,
         team,
         stage,
         priority,
@@ -82,6 +109,14 @@ const AddTask = ({ open, setOpen, task }) => {
         : await createTask(newData).unwrap();
   
       toast.success(res.message);
+
+      // Extract the emails of the selected users
+      const emailList = team.map((user) => user.email);
+      const taskTitle = data.title;
+
+      // Send emails to the selected team members
+      await sendEmail(emailList, taskTitle);
+
   
       // Close the modal after a short delay
       setTimeout(() => {
@@ -95,7 +130,9 @@ const AddTask = ({ open, setOpen, task }) => {
   
 
   const handleSelect = (e) => {
-    setAssets(e.target.files);
+    //setAssets(e.target.files);
+    console.log("Files selected:", e.target.files);
+    setAssets(Array.from(e.target.files));
   };
 
   const uploadFile = async (file) => {
@@ -110,7 +147,7 @@ const AddTask = ({ open, setOpen, task }) => {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          console.log("Uploading");
+          console.log("Uploading", snapshot.bytesTransferred, "/", snapshot.totalBytes);
         },
         (error) => {
           reject(error);
@@ -118,7 +155,8 @@ const AddTask = ({ open, setOpen, task }) => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref)
           .then((downloadURL) => {
-            uploadedFileURLs.push(downloadURL);
+            setUploadedFileURLs((prevURLs) => [...prevURLs, downloadURL]);
+            //uploadedFileURLs.push(downloadURL);
             resolve();
           })
           .catch((error) => {
@@ -128,6 +166,8 @@ const AddTask = ({ open, setOpen, task }) => {
       );
     });
   };
+
+  
 
   return (
     <>
