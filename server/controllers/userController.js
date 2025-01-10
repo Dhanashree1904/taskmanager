@@ -97,14 +97,14 @@ export const logoutUser = async (req, res) => {
 
 export const getTeamList = async (req, res) => {
   try {
-    const { isAdmin } = req.user; //changed
+    /*const { isAdmin } = req.user; //changed
 
     if (!isAdmin) {
       return res.status(403).json({
         status: false,
         message: "Unauthorized to view team list.",
       });
-    }
+    }*/
     const users = await User.find().select("name title role email isActive");
 
     res.status(200).json(users);
