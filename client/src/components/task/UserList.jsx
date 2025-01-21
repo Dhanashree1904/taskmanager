@@ -1,7 +1,6 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { BsChevronExpand } from "react-icons/bs";
-import { summary } from "../../assets/data";
 import clsx from "clsx";
 import { getInitials } from "../../utils";
 import { MdCheck } from "react-icons/md";
@@ -14,7 +13,7 @@ const UserList = ({ setTeam, team }) => {
 
   const handleChange = (el) => {
     setSelectedUsers(el);
-    setTeam(el?.map((u) => u._id));
+    setTeam(el?.map((u) => ({ _id: u._id, email: u.email })));
   };
   useEffect(() => {
     if (team?.length < 1) {

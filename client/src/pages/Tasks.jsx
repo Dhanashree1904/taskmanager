@@ -9,10 +9,10 @@ import { IoMdAdd } from "react-icons/io";
 import Tabs from "../components/Tabs";
 import TaskTitle from "../components/TaskTitle";
 import BoardView from "../components/BoardView";
-import { tasks } from "../assets/data";
 import Table from "../components/task/Table";
 import AddTask from "../components/task/AddTask";
 import { useGetAllTasksQuery } from "../redux/slices/api/taskApiSlice";
+import { useSelector } from "react-redux";
 
 const TABS = [
   { title: "Board View", icon: <MdGridView /> },
@@ -27,6 +27,7 @@ const TASK_TYPE = {
 
 const Tasks = () => {
   const params = useParams();
+  const { user } = useSelector((state) => state.auth);
 
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
@@ -48,7 +49,7 @@ const Tasks = () => {
       <div className='flex items-center justify-between mb-4'>
         <Title title={status ? `${status} Tasks` : "Tasks"} />
 
-        {!status && (
+        {!status && user?.isAdmin &&(
           <Button
             onClick={() => setOpen(true)}
             label='Create Task'
@@ -63,9 +64,7 @@ const Tasks = () => {
           <div className='w-full flex justify-between gap-4 md:gap-x-12 py-4'>
             <TaskTitle label='To Do' className={TASK_TYPE.todo} />
             <TaskTitle
-              label='In Progress'
-              className={TASK_TYPE["in progress"]}
-            />
+              label='In Progress'className={TASK_TYPE["in progress"]}/>
             <TaskTitle label='completed' className={TASK_TYPE.completed} />
           </div>
         )}

@@ -9,7 +9,6 @@ import { LuClipboardEdit } from "react-icons/lu";
 import { FaNewspaper, FaUsers } from "react-icons/fa";
 import { FaArrowsToDot } from "react-icons/fa6";
 import moment from "moment";
-import { summary } from "../assets/data";
 import clsx from "clsx";
 import { BGS, PRIOTITYSTYLES, TASK_TYPE, getInitials } from "../utils";
 import UserInfo from '../components/UserInfo';
@@ -198,7 +197,6 @@ if (isError || !data) {
         <div className='h-full flex flex-1 flex-col justify-between'>
           <p className='text-base text-gray-600'>{label}</p>
           <span className='text-2xl font-semibold'>{count}</span>
-          {/*<span className='text-sm text-gray-400'>{"110 last month"}</span> */}
         </div>
 
         <div
@@ -214,7 +212,7 @@ if (isError || !data) {
   };
   
   return (
-    <div classNamee='h-full py-4'>
+    <div className='h-full py-4'>
       <div className='grid grid-cols-1 md:grid-cols-4 gap-5'>
         {stats.map(({ icon, bg, label, total }, index) => (
           <Card key={index} icon={icon} bg={bg} label={label} count={total} />

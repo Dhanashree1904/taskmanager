@@ -14,19 +14,18 @@ import {
 import { RxActivityLog } from "react-icons/rx";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { tasks } from "../assets/data";
 import Tabs from "../components/Tabs";
 import { PRIOTITYSTYLES, TASK_TYPE, getInitials } from "../utils";
 import Loading from "../components/Loader";
 import Button from "../components/Button";
 import { useGetSingleTaskQuery, usePostTaskActivityMutation } from "../redux/slices/api/taskApiSlice";
 
-const assets = [
+/* const assets = [
   "https://images.pexels.com/photos/2418664/pexels-photo-2418664.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   "https://images.pexels.com/photos/8797307/pexels-photo-8797307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   "https://images.pexels.com/photos/2534523/pexels-photo-2534523.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   "https://images.pexels.com/photos/804049/pexels-photo-804049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-];
+]; */
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -96,7 +95,7 @@ const TaskDetails = () => {
 
   if (isLoading) 
     return (
-  <div classname='py-10'>
+  <div className='py-10'>
     <Loading />
   </div>
   );
@@ -230,7 +229,7 @@ const TaskDetails = () => {
           </>
         ) : (
           <>
-            <Activities activity={task.activities} id={id} refetch={refetch}/>
+            <Activities activity={task.activities} id={id} refetch={refetch}/> {/*data*/}
           </>
         )}
       </Tabs>

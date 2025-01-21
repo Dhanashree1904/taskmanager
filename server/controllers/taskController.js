@@ -2,11 +2,26 @@ import Notice from "../models/notification.js";
 import Task from "../models/task.js";
 import User from "../models/user.js";
 
+const createNotice = (team, task, text) => {
+  return Notice.create({
+    team,
+    text,
+    task: task._id,
+  });
+};
+
 export const createTask = async (req, res) => {
   try {
     const { userId } = req.user;
 
-    const { title, team, stage, date, priority, assets } = req.body;
+    const { title, team, stage, date, priority, assets, deadline } = req.body;
+
+    if (!title || !team || !stage || !priority || !deadline) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
+      });
+    }
 
     let text = "New task has been assigned to you";
     if (team?.length > 1) {
@@ -15,9 +30,7 @@ export const createTask = async (req, res) => {
 
     text =
       text +
-      ` The task priority is set a ${priority} priority, so check and act accordingly. The task date is ${new Date(
-        date
-      ).toDateString()}. Thank you!!!`;
+      ` The task priority is set a ${priority} priority, so check and act accordingly. The task deadline is ${new Date(deadline).toDateString()}. Thank you!!!`;
 
     const activity = {
       type: "assigned",
@@ -32,14 +45,11 @@ export const createTask = async (req, res) => {
       date,
       priority: priority.toLowerCase(),
       assets,
+      deadline: new Date(deadline).toISOString(),
       activities: activity,
     });
 
-    await Notice.create({
-      team,
-      text,
-      task: task._id,
-    });
+    await createNotice(team, task, text);
 
     res
       .status(200)
@@ -56,16 +66,19 @@ export const duplicateTask = async (req, res) => {
 
     const task = await Task.findById(id);
 
-    const newTask = await Task.create({
-      ...task,
-      title: task.title + " - Duplicate",
-    });
+    if (!task) {
+      return res.status(404).json({ success: false, message: "Task not found" });
+    }
 
-    newTask.team = task.team;
-    newTask.subTasks = task.subTasks;
-    newTask.assets = task.assets;
-    newTask.priority = task.priority;
-    newTask.stage = task.stage;
+    const newTask = new Task({
+      title: task.title + " - Duplicate",
+      team: task.team,
+      subTasks: task.subTasks,
+      assets: task.assets,
+      priority: task.priority,
+      stage: task.stage,
+      deadline: task.deadline,
+    });
 
     await newTask.save();
 
@@ -79,13 +92,9 @@ export const duplicateTask = async (req, res) => {
       text +
       ` The task priority is set a ${
         task.priority
-      } priority, so check and act accordingly. The task date is ${task.date.toDateString()}. Thank you!!!`;
+      } priority, so check and act accordingly. The task date is ${task.date.toDateString()}. The task deadline is ${task.deadline.toDateString()}. Thank you!!!`;
 
-    await Notice.create({
-      team: task.team,
-      text,
-      task: newTask._id,
-    });
+    await createNotice(task.team, newTask, text);
 
     res
       .status(200)
@@ -102,7 +111,17 @@ export const postTaskActivity = async (req, res) => {
     const { userId } = req.user;
     const { type, activity } = req.body;
 
+    if (!type || !activity) {
+      return res.status(400).json({
+        success: false,
+        message: "Activity type or activity missing",
+      });
+    }
+
     const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({ success: false, message: "Task not found" });
+    }
 
     const data = {
       type,
@@ -152,7 +171,7 @@ export const dashboardStatistics = async (req, res) => {
       .sort({ _id: -1 });
 
     //   group task by stage and calculate counts
-    const groupTaskks = allTasks.reduce((result, task) => {
+    const groupTasks = allTasks.reduce((result, task) => {
       const stage = task.stage;
 
       if (!result[stage]) {
@@ -182,7 +201,7 @@ export const dashboardStatistics = async (req, res) => {
       totalTasks,
       last10Task,
       users: isAdmin ? users : [],
-      tasks: groupTaskks,
+      tasks: groupTasks,
       graphData: groupData,
     };
 
@@ -199,6 +218,7 @@ export const dashboardStatistics = async (req, res) => {
 
 export const getTasks = async (req, res) => {
   try {
+    const { userId, isAdmin } = req.user;//
     const { stage, isTrashed } = req.query;
 
     let query = { isTrashed: isTrashed ? true : false };
@@ -207,19 +227,65 @@ export const getTasks = async (req, res) => {
       query.stage = stage;
     }
 
-    let queryResult = Task.find(query)
-      .populate({
-        path: "team",
-        select: "name title email",
-      })
-      .sort({ _id: -1 });
+    if (!isAdmin) {
+      query.team = { $all: [userId] }; // Check if user is part of the team array
+    }
 
-    const tasks = await queryResult;
+    const tasks = await Task.find(query)
+      .populate({ path: "team", select: "name title email" })
+      .sort({ _id: -1 });
 
     res.status(200).json({
       status: true,
       tasks,
     });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+};
+
+export const createSubTask = async (req, res) => {
+  try {
+    const { title, tag, date, deadline, team } = req.body;
+
+    const { id } = req.params;
+
+    const { userId } = req.user;
+
+    if (!title || !tag || !deadline || !team) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    const newSubTask = {
+      title,
+      date,
+      tag,
+      deadline,
+      team,
+    };
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({ status: false, message: "Task not found" });
+    }
+
+
+    if (!task.team.map((member) => member.toString()).includes(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to add subtasks to this task.",
+      });
+    }
+    
+
+    task.subTasks.push(newSubTask);
+
+    await task.save();
+
+    await createNotice(team, task, `A subtask "${title}" has been assigned with a deadline of ${new Date(deadline).toDateString()}.`);
+
+    res.status(200).json({ status: true, message: "SubTask added successfully." });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
@@ -238,38 +304,17 @@ export const getTask = async (req, res) => {
       .populate({
         path: "activities.by",
         select: "name",
+      })
+      .populate({
+        path: "subTasks.team", // Populate subtask team
+        select: "name title email",
       });
 
     res.status(200).json({
       status: true,
       task,
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(400).json({ status: false, message: error.message });
-  }
-};
-
-export const createSubTask = async (req, res) => {
-  try {
-    const { title, tag, date } = req.body;
-
-    const { id } = req.params;
-
-    const newSubTask = {
-      title,
-      date,
-      tag,
-    };
-
-    const task = await Task.findById(id);
-
-    task.subTasks.push(newSubTask);
-
-    await task.save();
-
-    res.status(200).json({ status: true, message: "SubTask added successfully." });
-  } catch (error) {
+  }catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
   }
@@ -278,12 +323,12 @@ export const createSubTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, date, team, stage, priority, assets } = req.body;
+    const { title, deadline, team, stage, priority, assets } = req.body;
 
     const task = await Task.findById(id);
 
     task.title = title;
-    task.date = date;
+    task.deadline = deadline;
     task.priority = priority.toLowerCase();
     task.assets = assets;
     task.stage = stage.toLowerCase();
@@ -293,7 +338,7 @@ export const updateTask = async (req, res) => {
 
     res
       .status(200)
-      .json({ status: true, message: "Task duplicated successfully." });
+      .json({ status: true, message: "Task updated successfully." });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
@@ -305,10 +350,13 @@ export const trashTask = async (req, res) => {
     const { id } = req.params;
 
     const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({ success: false, message: "Task not found" });
+    }
 
     task.isTrashed = true;
 
-    await task.save();
+    await task.save();  
 
     res.status(200).json({
       status: true,
@@ -330,10 +378,11 @@ export const deleteRestoreTask = async (req, res) => {
     } else if (actionType === "deleteAll") {
       await Task.deleteMany({ isTrashed: true });
     } else if (actionType === "restore") {
-      const resp = await Task.findById(id);
-
-      resp.isTrashed = false;
-      resp.save();
+      const task = await Task.findById(id);
+      if (task) {
+        task.isTrashed = false;
+        await task.save();
+      }
     } else if (actionType === "restoreAll") {
       await Task.updateMany(
         { isTrashed: true },

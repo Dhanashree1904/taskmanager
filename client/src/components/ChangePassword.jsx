@@ -17,7 +17,7 @@ const ChangePassword = ({ open, setOpen }) => {
     e.preventDefault();
 
     // Validate the form
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    if ( !newPassword || !confirmPassword) {
       setError("All fields are required.");
       return;
     }
@@ -61,7 +61,7 @@ const ChangePassword = ({ open, setOpen }) => {
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
       <form onSubmit={handleSubmit}>
         {/* Old Password */}
-        <div className="mb-4">
+       {/* <div className="mb-4">
           <label htmlFor="oldPassword" className="block text-sm font-medium">
             Old Password
           </label>
@@ -74,7 +74,7 @@ const ChangePassword = ({ open, setOpen }) => {
             placeholder="Enter old password"
             required
           />
-        </div>
+        </div> */}
 
         {/* New Password */}
         <div className="mb-4">
