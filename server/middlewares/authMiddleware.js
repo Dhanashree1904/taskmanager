@@ -14,12 +14,12 @@ const protectRoute = async (req, res, next) => {
         "isAdmin email"
       );
 
-      {/*if (!user) {
+      /*if (!user) {
         return res.status(401).json({
           status: false,
           message: "Not authorized. User not found.",
         });
-      }*/}
+      }*/
 
       req.user = {
         email: resp.email,
@@ -39,7 +39,7 @@ const protectRoute = async (req, res, next) => {
       .status(401)
       .json({ status: false, message: "Not authorized. Try login again." });
   }
-};
+};  
 
 const isAdminRoute = (req, res, next) => {
   if (req.user && req.user.isAdmin) {

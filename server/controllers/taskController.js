@@ -270,12 +270,14 @@ export const createSubTask = async (req, res) => {
       return res.status(404).json({ status: false, message: "Task not found" });
     }
 
-    if (!task.team.includes(userId)) {  //changed
+
+    if (!task.team.map((member) => member.toString()).includes(userId)) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized to add subtasks to this task.",
       });
     }
+    
 
     task.subTasks.push(newSubTask);
 

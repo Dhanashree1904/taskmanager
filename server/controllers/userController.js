@@ -95,16 +95,90 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-export const getTeamList = async (req, res) => {
+/*export const getTeamList = async (req, res) => {
   try {
-    /*const { isAdmin } = req.user; //changed
+    // Ensure req.user exists (from authentication middleware)
+    if (!req.user) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized. No user data available.",
+      });
+    }
 
-    if (!isAdmin) {
+    const { isAdmin, userId } = req.user;  // Ensure user is authenticated and authorized
+
+    // Check if user has admin privileges
+    if (!isAdmin || !userId) {
       return res.status(403).json({
         status: false,
         message: "Unauthorized to view team list.",
       });
-    }*/
+    }
+
+    // Fetch users with the selected fields
+    const users = await User.find().select("name title role email isActive");
+
+    // Send successful response
+    return res.status(200).json({
+      status: true,
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);  // Log the error details to server logs
+
+    // Send a more specific error message, depending on the error
+    return res.status(500).json({
+      status: false,
+      message: error.message || "An unexpected error occurred.",
+    });
+  }
+};*/
+
+
+export const getTeamList = async (req, res) => {
+  try {
+    const { isAdmin, _id } = req.user; // Include user ID from req.user
+
+    let users;
+
+    if (isAdmin) {
+      // Admin users can view all users
+      users = await User.find().select("name title role email isActive");
+    } else {
+      // Non-admin users can only view active team members they work with
+      users = await User.find({
+        isActive: true,    // Include only active users
+        _id: { $ne: _id }, // Exclude the current user (if desired)
+      }).select("name title role email");
+    }
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        status: false,
+        message: "No team members found.",
+      });
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: false,
+      message: "An error occurred while fetching the team list.",
+    });
+  }
+};
+
+export const getSubTeamList = async (req, res) => {
+  try {
+    const { isAdmin, userId} = req.user; //changed
+
+    if (!isAdmin || !userId) {
+      return res.status(403).json({
+        status: false,
+        message: "Unauthorized to view team list.",
+      });
+    }
     const users = await User.find().select("name title role email isActive");
 
     res.status(200).json(users);

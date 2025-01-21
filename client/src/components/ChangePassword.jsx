@@ -17,7 +17,7 @@ const ChangePassword = ({ open, setOpen }) => {
     e.preventDefault();
 
     // Validate the form
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    if ( !newPassword || !confirmPassword) {
       setError("All fields are required.");
       return;
     }

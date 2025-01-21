@@ -9,9 +9,8 @@ import { toast } from "sonner";
 import UserList from "./UserList";
 import { dateFormatter } from "../../utils";
 
-const AddSubTask = ({ open, setOpen, id , isAdmin, assignedUsers}) => {
-  const { title, deadline, team: initialTeam = [] } = id || {};
-
+const AddSubTask = ({ open, setOpen, id , assignedUsers}) => {
+  const { title, deadline, team: initialTeam = [] } = id || {}; 
   const defaultValues = {
       title: title || "",
       tag: "",
@@ -26,7 +25,7 @@ const AddSubTask = ({ open, setOpen, id , isAdmin, assignedUsers}) => {
   } = useForm(defaultValues);
 
   const [addSubTask] = useCreateSubTaskMutation();
-  const [team, setTeam] = useState(initialTeam);
+  const [team, setTeam] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOnSubmit = async (data) => {

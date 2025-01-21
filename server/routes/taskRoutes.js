@@ -23,7 +23,7 @@ router.get("/dashboard", protectRoute, dashboardStatistics);
 router.get("/", protectRoute, getTasks);
 router.get("/:id", protectRoute, getTask);
 
-router.post("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
+router.put("/create-subtask/:id", protectRoute, createSubTask);  //isAdminRoute
 router.put("/update/:id", protectRoute, isAdminRoute, updateTask);
 router.put("/:id", protectRoute, isAdminRoute, trashTask);
 

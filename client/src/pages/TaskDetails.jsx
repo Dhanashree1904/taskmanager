@@ -95,7 +95,7 @@ const TaskDetails = () => {
 
   if (isLoading) 
     return (
-  <div classname='py-10'>
+  <div className='py-10'>
     <Loading />
   </div>
   );
@@ -136,10 +136,6 @@ const TaskDetails = () => {
 
                 <p className='text-gray-500'>
                   Created At: {new Date(task?.date).toDateString()}
-                </p>
-
-                <p className='text-gray-500'>
-                  Deadline: {new Deadline(task?.deadline).toDateString()}
                 </p>
 
                 <div className='flex items-center gap-8 p-4 border-y border-gray-200'>

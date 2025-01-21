@@ -50,6 +50,8 @@ const AddTask = ({ open, setOpen, task }) => {
   const [updateTask, { isLoading : isUpdating }] = useUpdateTaskMutation();
   const URLS = task?.assets ? [...task.assets] : [];
 
+  const creationDate = task ? task.creationDate : new Date();
+
   //const baseURL = "http://localhost:8800/api";
 
   const sendEmail =  async (emailList, taskTitle) => {
@@ -97,6 +99,7 @@ const AddTask = ({ open, setOpen, task }) => {
       const newData = {
         ...data,
         //assets: [...URLS, ...uploadedFileURLs],
+        creationDate,
         assets: uploadedFileURLs,
         team,
         stage,
